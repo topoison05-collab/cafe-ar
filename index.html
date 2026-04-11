@@ -1,17 +1,49 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>かふぇ絲 AR</title>
+    <script src="https://cdn.nianticspatial.com/sdk/v1/niantic-web-ar.js"></script>
+    <style>
+        body { margin: 0; width: 100vw; height: 100vh; overflow: hidden; background-color: #000; font-family: sans-serif; }
+        #start-button {
+            position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+            z-index: 1000; padding: 20px 40px; background: #fff; border: none;
+            border-radius: 50px; font-size: 18px; font-weight: bold; cursor: pointer;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+        }
+    </style>
+</head>
 <body>
-    <div id="start-button" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 1000; padding: 20px; background: white; border-radius: 10px; font-weight: bold;">
-        ARを開始する
-    </div>
+    <button id="start-button">タップしてARを開始</button>
 
-    <niantic-vps-scene location-id="baabee12-b43b-47c9-8e7f-70c57702746f">
+    <niantic-vps-scene id="ar-scene" location-id="baabee12-b43b-47c9-8e7f-70c57702746f" autoplay="false">
         <niantic-model src="tora-v1.glb" scale="1 1 1" position="0 0 0"></niantic-model>
     </niantic-vps-scene>
 
     <script>
-        // ボタンを押した瞬間にARを起動させる
-        document.getElementById('start-button').addEventListener('click', () => {
-            document.getElementById('start-button').style.display = 'none';
-            // Nianticのエンジンに開始を合図（必要に応じて自動で走りますがタップが重要）
+        const startButton = document.getElementById('start-button');
+        const scene = document.getElementById('ar-scene');
+
+        startButton.addEventListener('click', async () => {
+            try {
+                // ボタンを消す
+                startButton.style.display = 'none';
+                
+                // iPhoneのブラウザに対して、カメラとセンサーの許可を明示的に求める
+                if (typeof DeviceOrientationEvent !== 'undefined' && typeof DeviceOrientationEvent.requestPermission === 'function') {
+                    await DeviceOrientationEvent.requestPermission();
+                }
+
+                // ARシーンを開始
+                scene.start();
+                console.log("AR Scene Started");
+            } catch (error) {
+                console.error("起動エラー:", error);
+                alert("カメラの起動に失敗しました。設定を確認してください。");
+            }
         });
     </script>
 </body>
+</html>
