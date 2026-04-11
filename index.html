@@ -13,7 +13,6 @@
             border-radius: 50px; font-size: 18px; font-weight: bold; cursor: pointer;
             box-shadow: 0 4px 15px rgba(0,0,0,0.5);
         }
-        niantic-vps-scene { display: block; width: 100vw; height: 100vh; }
     </style>
 </head>
 <body>
@@ -24,6 +23,7 @@
         api-key="trPrNIccFqeSZ11vV0IjY445lkmfhjMbXXTYsSJEbRY"
         location-id="baabee12-b43b-47c9-8e7f-70c57702746f" 
         render-camera="true"
+        vps-enabled="true"
         autoplay="false">
         
         <niantic-model src="tora-v1.glb" scale="1 1 1" position="0 0 0"></niantic-model>
@@ -35,24 +35,36 @@
 
         btn.addEventListener('click', async () => {
             try {
-                // 1. iPhoneのモーションセンサー（ジャイロ）許可をリクエスト
+                btn.innerText = "起動中...";
+
+                // 1. 位置情報（GPS）の許可をリクエスト
+                if ("geolocation" in navigator) {
+                    await new Promise((resolve) => {
+                        navigator.geolocation.getCurrentPosition(resolve, () => {
+                            alert("位置情報を許可してください。");
+                            resolve();
+                        });
+                    });
+                }
+
+                // 2. iPhoneのモーションセンサー（ジャイロ）許可
                 if (window.DeviceOrientationEvent && typeof DeviceOrientationEvent.requestPermission === 'function') {
                     await DeviceOrientationEvent.requestPermission();
                 }
 
-                // 2. ボタンを非表示にし、シーンを開始
+                // 3. ボタンを消してシーンを開始
                 btn.style.display = 'none';
                 
                 if (scene && typeof scene.start === 'function') {
                     scene.start();
                 }
 
-                // 3. 描画を強制的に更新（真っ暗な画面対策）
+                // 4. 描画を強制
                 window.dispatchEvent(new Event('resize'));
                 
             } catch (error) {
                 console.error("AR起動エラー:", error);
-                alert("起動に失敗しました。Safariの設定でカメラが許可されているか確認してください。");
+                alert("起動に失敗しました。設定を確認してください。");
             }
         });
     </script>
