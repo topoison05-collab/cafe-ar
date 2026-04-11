@@ -11,7 +11,7 @@
             position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
             z-index: 1000; padding: 20px 40px; background: #fff; border: none;
             border-radius: 50px; font-size: 18px; font-weight: bold; cursor: pointer;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.5);
         }
     </style>
 </head>
@@ -28,20 +28,29 @@
 
         startButton.addEventListener('click', async () => {
             try {
-                // ボタンを消す
-                startButton.style.display = 'none';
+                startButton.innerText = "起動中...";
                 
-                // iPhoneのブラウザに対して、カメラとセンサーの許可を明示的に求める
+                // 1. iPhoneのセンサー（ジャイロ）許可をリクエスト
                 if (typeof DeviceOrientationEvent !== 'undefined' && typeof DeviceOrientationEvent.requestPermission === 'function') {
                     await DeviceOrientationEvent.requestPermission();
                 }
 
-                // ARシーンを開始
-                scene.start();
-                console.log("AR Scene Started");
+                // 2. カメラへのアクセスを個別に強制リクエスト（エラー防止）
+                await navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } });
+
+                // 3. ARシーンを明示的に開始
+                if (scene && typeof scene.start === 'function') {
+                    scene.start();
+                }
+                
+                // 成功したらボタンを消す
+                startButton.style.display = 'none';
+                
             } catch (error) {
-                console.error("起動エラー:", error);
-                alert("カメラの起動に失敗しました。設定を確認してください。");
+                console.error("AR起動エラー:", error);
+                // エラー内容を表示（ユーザーが設定を確認しやすくするため）
+                alert("エラー詳細: " + error.name + "\n設定 ＞ Safari ＞ カメラ が「許可」になっているか確認してください。");
+                startButton.innerText = "再試行";
             }
         });
     </script>
