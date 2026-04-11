@@ -6,9 +6,7 @@
     <title>かふぇ絲 AR</title>
     <script src="https://cdn.nianticspatial.com/sdk/v1/niantic-web-ar.js"></script>
     <style>
-        /* 背景を透明にして、後ろのカメラ映像が見えるようにします */
-        body, html { margin: 0; width: 100%; height: 100%; overflow: hidden; background: transparent; }
-        canvas { display: block; }
+        body, html { margin: 0; width: 100%; height: 100%; overflow: hidden; background: #000; }
         #start-button {
             position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
             z-index: 1000; padding: 20px 40px; background: #fff; border-radius: 50px;
@@ -19,28 +17,25 @@
 <body>
     <button id="start-button">タップしてARを開始</button>
 
-    <niantic-vps-scene id="ar-scene" location-id="baabee12-b43b-47c9-8e7f-70c57702746f" autoplay="false" render-camera="true">
+    <niantic-vps-scene id="ar-scene" location-id="baabee12-b43b-47c9-8e7f-70c57702746f" render-camera="true">
         <niantic-model src="tora-v1.glb" scale="1 1 1" position="0 0 0"></niantic-model>
     </niantic-vps-scene>
 
     <script>
         const startButton = document.getElementById('start-button');
-        const scene = document.getElementById('ar-scene');
-
+        
         startButton.addEventListener('click', async () => {
-            try {
-                // 1. センサー許可
-                if (window.DeviceOrientationEvent && DeviceOrientationEvent.requestPermission) {
+            // iPhoneのセンサー許可だけをここで実行
+            if (window.DeviceOrientationEvent && DeviceOrientationEvent.requestPermission) {
+                try {
                     await DeviceOrientationEvent.requestPermission();
+                } catch (e) {
+                    console.error("センサー許可エラー:", e);
                 }
-
-                // 2. AR開始
-                await scene.start();
-                startButton.style.display = 'none';
-                
-            } catch (e) {
-                alert("エラー: " + e.message);
             }
+            
+            // ボタンを消すだけで、あとはSDKが自動でカメラを起動させます
+            startButton.style.display = 'none';
         });
     </script>
 </body>
