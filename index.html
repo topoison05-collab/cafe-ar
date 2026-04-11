@@ -4,57 +4,57 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>かふぇ絲 AR</title>
-    <script src="https://cdn.nianticspatial.com/sdk/v0.1.0/niantic-web-ar.js"></script>
+    <script src="https://cdn.nianticspatial.com/sdk/v1/niantic-web-ar.js"></script>
     <style>
-        body { margin: 0; width: 100vw; height: 100vh; overflow: hidden; background-color: #000; }
+        body, html { margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden; background-color: #000; }
+        /* 映像を表示するレイヤーを強制的に全画面にします */
+        niantic-vps-scene { display: block; width: 100vw; height: 100vh; }
         #overlay {
             position: absolute; top: 0; left: 0; width: 100%; height: 100%;
             display: flex; justify-content: center; align-items: center;
-            background: rgba(0,0,0,0.8); z-index: 10;
+            background: #000; z-index: 100;
         }
         #start-btn {
-            padding: 20px 40px; font-size: 18px; font-weight: bold;
-            background: #fff; border: none; border-radius: 50px; cursor: pointer;
+            padding: 20px 40px; font-size: 1.2rem; font-weight: bold;
+            background: #fff; border: none; border-radius: 50px;
         }
     </style>
 </head>
 <body>
     <div id="overlay">
-        <button id="start-btn">ARを開始してトラを探す</button>
+        <button id="start-btn">ARを開始する</button>
     </div>
 
-    <niantic-vps-scene id="scene" location-id="baabee12-b43b-47c9-8e7f-70c57702746f">
+    <niantic-vps-scene 
+        location-id="baabee12-b43b-47c9-8e7f-70c57702746f" 
+        render-camera="true" 
+        autoplay="true">
         <niantic-model src="tora-v1.glb" scale="1 1 1" position="0 0 0"></niantic-model>
     </niantic-vps-scene>
 
     <script>
         const btn = document.getElementById('start-btn');
         const overlay = document.getElementById('overlay');
-        const scene = document.getElementById('scene');
 
         btn.addEventListener('click', async () => {
-            // 1. iPhoneのセンサー許可（これがないとカメラが真っ暗になります）
+            // 1. iPhoneのセンサー許可（ジャイロ・加速度）
             if (window.DeviceOrientationEvent && DeviceOrientationEvent.requestPermission) {
-                await DeviceOrientationEvent.requestPermission().catch(console.error);
+                await DeviceOrientationEvent.requestPermission().catch(e => console.error(e));
             }
 
-            // 2. カメラの強制起動
-            navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } })
-                .then(() => {
-                    overlay.style.display = 'none';
-                    // 3. シーンの明示的な初期化
-                    if (scene && scene.start) {
-                        scene.start();
-                    }
-                })
-                .catch(err => {
-                    alert("カメラを起動できません: " + err.name);
-                });
+            // 2. 黒い幕（オーバーレイ）を消して、後ろで動いているはずのカメラを表示
+            overlay.style.opacity = '0';
+            setTimeout(() => {
+                overlay.style.display = 'none';
+            }, 300);
+
+            // 3. 画面の再描画を強制する（これで真っ暗な画面が直ることがあります）
+            window.dispatchEvent(new Event('resize'));
         });
 
-        // 画面が真っ暗になるのを防ぐための強制描画命令
-        window.addEventListener('load', () => {
-            window.dispatchEvent(new Event('resize'));
+        // SDKのエラーをログに吐き出す（PC接続時に確認可能）
+        window.addEventListener('error', (e) => {
+            console.error("SDK Error:", e.message);
         });
     </script>
 </body>
