@@ -6,72 +6,53 @@
     <title>かふぇ絲 AR</title>
     <script src="https://cdn.nianticspatial.com/sdk/v1/niantic-web-ar.js"></script>
     <style>
-        body, html { margin: 0; width: 100%; height: 100%; overflow: hidden; background-color: #000; }
-        #overlay {
-            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-            display: flex; flex-direction: column; justify-content: center; align-items: center;
-            background: #000; z-index: 1000; color: white;
+        body, html { margin: 0; width: 100%; height: 100%; overflow: hidden; background-color: #000; font-family: sans-serif; }
+        #start-button {
+            position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+            z-index: 1000; padding: 20px 40px; background: #fff; border: none;
+            border-radius: 50px; font-size: 18px; font-weight: bold; cursor: pointer;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.5);
         }
-        #start-btn {
-            padding: 20px 40px; font-size: 1.2rem; font-weight: bold;
-            background: #fff; border: none; border-radius: 50px; color: #000;
-        }
+        niantic-vps-scene { display: block; width: 100vw; height: 100vh; }
     </style>
 </head>
 <body>
-    <div id="overlay">
-        <button id="start-btn">カメラを起動してARを開始</button>
-        <p id="status-text" style="margin-top: 20px; font-size: 14px; color: #ccc;"></p>
-    </div>
+    <button id="start-button">タップしてARを開始</button>
 
-    <niantic-vps-scene id="ar-scene" location-id="baabee12-b43b-47c9-8e7f-70c57702746f">
+    <niantic-vps-scene 
+        id="ar-scene"
+        api-key="trPrNIccFqeSZ11vV0IjY445lkmfhjMbXXTYsSJEbRY"
+        location-id="baabee12-b43b-47c9-8e7f-70c57702746f" 
+        render-camera="true"
+        autoplay="false">
+        
         <niantic-model src="tora-v1.glb" scale="1 1 1" position="0 0 0"></niantic-model>
     </niantic-vps-scene>
 
     <script>
-        const btn = document.getElementById('start-btn');
-        const status = document.getElementById('status-text');
-        const overlay = document.getElementById('overlay');
+        const btn = document.getElementById('start-button');
         const scene = document.getElementById('ar-scene');
 
         btn.addEventListener('click', async () => {
             try {
-                status.innerText = "センサーの許可を求めています...";
-                
-                // 1. iPhoneのモーションセンサー許可
-                if (window.DeviceOrientationEvent && DeviceOrientationEvent.requestPermission) {
+                // 1. iPhoneのモーションセンサー（ジャイロ）許可をリクエスト
+                if (window.DeviceOrientationEvent && typeof DeviceOrientationEvent.requestPermission === 'function') {
                     await DeviceOrientationEvent.requestPermission();
                 }
 
-                status.innerText = "カメラを起動しています...";
+                // 2. ボタンを非表示にし、シーンを開始
+                btn.style.display = 'none';
                 
-                // 2. ブラウザのカメラ機能を直接呼び出して「許可」のトリガーを引く
-                const stream = await navigator.mediaDevices.getUserMedia({ 
-                    video: { facingMode: 'environment' }, 
-                    audio: false 
-                });
-                
-                // カメラが起動できたらストリームを一旦止める（SDKに渡すため）
-                stream.getTracks().forEach(track => track.stop());
-
-                status.innerText = "ARエンジンを初期化中...";
-                
-                // 3. Nianticシーンの手動起動を試みる
-                if (scene) {
-                    // もしstartメソッドがなくても、オーバーレイを消して描画を強制する
-                    overlay.style.display = 'none';
-                    if (typeof scene.start === 'function') {
-                        scene.start();
-                    }
+                if (scene && typeof scene.start === 'function') {
+                    scene.start();
                 }
 
-                // 4. 描画を促すために画面サイズ変更イベントを発火
+                // 3. 描画を強制的に更新（真っ暗な画面対策）
                 window.dispatchEvent(new Event('resize'));
-
-            } catch (err) {
-                console.error(err);
-                status.innerText = "エラー: " + err.name;
-                alert("起動に失敗しました。Safariの設定でカメラが許可されているか、他のカメラアプリを終了して再試行してください。");
+                
+            } catch (error) {
+                console.error("AR起動エラー:", error);
+                alert("起動に失敗しました。Safariの設定でカメラが許可されているか確認してください。");
             }
         });
     </script>
