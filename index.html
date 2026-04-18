@@ -17,7 +17,7 @@
     </style>
 </head>
 <body>
-    <button id="start-button">タップしてARを開始</button>
+    <button id="start-button">ARを開始する</button>
 
     <niantic-vps-scene 
         id="ar-scene"
@@ -33,52 +33,46 @@
         const btn = document.getElementById('start-button');
         const scene = document.getElementById('ar-scene');
 
-        btn.addEventListener('click', async () => {
+        // iOSのセキュリティ制限を回避するため、非同期ではなく「同期」に近い形で許可を連鎖させます
+        btn.onclick = async () => {
+            btn.innerText = "準備中...";
+            
             try {
-                btn.innerText = "認証中...";
-
-                // 1. 位置情報の許可
-                if ("geolocation" in navigator) {
-                    await new Promise((resolve) => {
-                        navigator.geolocation.getCurrentPosition(resolve, () => {
-                            console.log("Geolocation denied");
-                            resolve();
-                        }, { enableHighAccuracy: true });
-                    });
+                // 1. まずセンサー許可を「単独で」実行（iPhone 15対策）
+                if (typeof DeviceOrientationEvent !== 'undefined' && typeof DeviceOrientationEvent.requestPermission === 'function') {
+                    const res = await DeviceOrientationEvent.requestPermission();
+                    if (res !== 'granted') {
+                        alert("センサーへのアクセスを許可してください。");
+                        return;
+                    }
                 }
 
-                // 2. モーションセンサーの許可
-                if (window.DeviceOrientationEvent && typeof DeviceOrientationEvent.requestPermission === 'function') {
-                    await DeviceOrientationEvent.requestPermission();
-                }
+                // 2. 次に位置情報を取得
+                await new Promise((resolve) => {
+                    navigator.geolocation.getCurrentPosition(resolve, (err) => {
+                        console.warn("Location check bypassed", err);
+                        resolve();
+                    }, { timeout: 5000 });
+                });
 
-                // 3. ブラウザ側のカメラ許可をSDKの前に「先行して」取得する（iPhone 15対策）
-                try {
-                    const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } });
-                    stream.getTracks().forEach(track => track.stop()); // 一旦止める
-                } catch (e) {
-                    console.warn("Camera pre-check failed:", e);
-                }
-
-                // 4. SDKの要素が準備できるまで待機してからstartを呼ぶ
+                // 3. SDKのロード完了を待ってからスタート
                 btn.innerText = "起動中...";
-                
-                // カスタム要素が定義されるのを待ってから実行
                 customElements.whenDefined('niantic-vps-scene').then(() => {
                     btn.style.display = 'none';
                     if (scene && typeof scene.start === 'function') {
                         scene.start();
                     } else {
-                        // 万が一startがまだない場合は直接autoplayを切り替える
                         scene.setAttribute('autoplay', 'true');
                     }
                     window.dispatchEvent(new Event('resize'));
                 });
-                
-            } catch (error) {
-                alert("エラーが発生しました: " + error.message);
+
+            } catch (e) {
+                // エラー内容を画面に表示（トラブルシューティング用）
+                alert("起動に失敗しました: " + e.message);
+                btn.innerText = "再試行する";
             }
-        });
+        };
     </script>
 </body>
 </html>
