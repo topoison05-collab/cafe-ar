@@ -13,6 +13,7 @@
             border-radius: 50px; font-size: 18px; font-weight: bold; cursor: pointer;
             box-shadow: 0 4px 15px rgba(0,0,0,0.5);
         }
+        niantic-vps-scene { display: block; width: 100vw; height: 100vh; }
     </style>
 </head>
 <body>
@@ -25,7 +26,6 @@
         render-camera="true"
         vps-enabled="true"
         autoplay="false">
-        
         <niantic-model src="tora-v1.glb" scale="1 1 1" position="0 0 0"></niantic-model>
     </niantic-vps-scene>
 
@@ -35,36 +35,48 @@
 
         btn.addEventListener('click', async () => {
             try {
-                btn.innerText = "起動中...";
+                btn.innerText = "認証中...";
 
-                // 1. 位置情報（GPS）の許可をリクエスト
+                // 1. 位置情報の許可
                 if ("geolocation" in navigator) {
                     await new Promise((resolve) => {
                         navigator.geolocation.getCurrentPosition(resolve, () => {
-                            alert("位置情報を許可してください。");
+                            console.log("Geolocation denied");
                             resolve();
-                        });
+                        }, { enableHighAccuracy: true });
                     });
                 }
 
-                // 2. iPhoneのモーションセンサー（ジャイロ）許可
+                // 2. モーションセンサーの許可
                 if (window.DeviceOrientationEvent && typeof DeviceOrientationEvent.requestPermission === 'function') {
                     await DeviceOrientationEvent.requestPermission();
                 }
 
-                // 3. ボタンを消してシーンを開始
-                btn.style.display = 'none';
-                
-                if (scene && typeof scene.start === 'function') {
-                    scene.start();
+                // 3. ブラウザ側のカメラ許可をSDKの前に「先行して」取得する（iPhone 15対策）
+                try {
+                    const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } });
+                    stream.getTracks().forEach(track => track.stop()); // 一旦止める
+                } catch (e) {
+                    console.warn("Camera pre-check failed:", e);
                 }
 
-                // 4. 描画を強制
-                window.dispatchEvent(new Event('resize'));
+                // 4. SDKの要素が準備できるまで待機してからstartを呼ぶ
+                btn.innerText = "起動中...";
+                
+                // カスタム要素が定義されるのを待ってから実行
+                customElements.whenDefined('niantic-vps-scene').then(() => {
+                    btn.style.display = 'none';
+                    if (scene && typeof scene.start === 'function') {
+                        scene.start();
+                    } else {
+                        // 万が一startがまだない場合は直接autoplayを切り替える
+                        scene.setAttribute('autoplay', 'true');
+                    }
+                    window.dispatchEvent(new Event('resize'));
+                });
                 
             } catch (error) {
-                console.error("AR起動エラー:", error);
-                alert("起動に失敗しました。設定を確認してください。");
+                alert("エラーが発生しました: " + error.message);
             }
         });
     </script>
