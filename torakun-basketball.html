@@ -16,7 +16,6 @@
             height: 100vh; 
             --poster-color: transparent; 
         }
-        /* AR開始ボタンのカスタマイズ */
         .ar-button {
             position: absolute; 
             bottom: 50px; 
@@ -42,6 +41,7 @@
 
     <model-viewer 
         src="torakun-basketball.glb" 
+        ios-src="torakun-basketball.usdz"
         ar 
         ar-modes="webxr scene-viewer quick-look" 
         ar-placement="floor"
@@ -50,7 +50,8 @@
         auto-rotate
         camera-orbit="90deg 75deg 100%"
         alt="かふぇ絲のキャラクター とらくんの3Dモデル"
-        autoplay>
+        autoplay
+        animation-name="*">
         
         <button slot="ar-button" class="ar-button">
             とらくんのバスケットボールを出現させる
