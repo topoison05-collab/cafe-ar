@@ -32,18 +32,15 @@
             cursor: pointer;
             z-index: 999;
         }
-        .ar-button:active {
-            background-color: #eee;
-        }
     </style>
 </head>
 <body>
 
     <model-viewer 
         src="torakun-basketball.glb" 
-        ios-src="torakun-basketball.usdz#allowsContentScaling=1"
+        ios-src="torakun-basketball.usdz#allowsContentScaling=1&canonicalWebPageURL=https://ito.cafe"
         ar 
-        ar-modes="webxr scene-viewer quick-look" 
+        ar-modes="quick-look webxr scene-viewer" 
         ar-placement="floor"
         ar-scale="auto"
         camera-controls 
@@ -51,6 +48,7 @@
         shadow-intensity="1" 
         auto-rotate
         camera-orbit="90deg 75deg 100%"
+        min-camera-orbit="auto auto 5%"
         alt="かふぇ絲のキャラクター とらくんの3Dモデル"
         autoplay
         animation-name="*">
