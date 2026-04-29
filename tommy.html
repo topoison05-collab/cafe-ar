@@ -18,7 +18,7 @@
 <body>
 
     <a-scene 
-        mindar-image="imageTargetSrc: ./tommy.mind; filterMinCF: 0.0001; filterBeta: 0.001;" 
+        mindar-image="imageTargetSrc: ./targets.mind; filterMinCF: 0.0001; filterBeta: 0.001;" 
         color-space="sRGB" 
         renderer="colorManagement: true, physicallyCorrectLights" 
         vr-mode-ui="enabled: false" 
@@ -46,6 +46,16 @@
         <a-entity mindar-image-target="targetIndex: 1">
             <a-gltf-model 
                 src="#king-model" 
+                position="0 -0.2 0.1" 
+                scale="3 3 3" 
+                rotation="90 90 180"
+                animation-mixer>
+            </a-gltf-model>
+        </a-entity>
+        
+        <a-entity mindar-image-target="targetIndex: 2">
+            <a-gltf-model 
+                src="#kapper-model" 
                 position="0 -0.2 0.1" 
                 scale="3 3 3" 
                 rotation="90 90 180"
