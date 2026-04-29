@@ -18,7 +18,7 @@
 <body>
 
     <a-scene 
-        mindar-image="imageTargetSrc: ./test.mind; filterMinCF: 0.0001; filterBeta: 0.001;" 
+        mindar-image="imageTargetSrc: ./tommy.mind; filterMinCF: 0.0001; filterBeta: 0.001;" 
         color-space="sRGB" 
         renderer="colorManagement: true, physicallyCorrectLights" 
         vr-mode-ui="enabled: false" 
@@ -26,7 +26,8 @@
         
         <a-assets>
             <a-asset-item id="tora-model" src="torakun-ojigi.glb"></a-asset-item>
-            <a-asset-item id="azuki-model" src="azuki-v1.glb"></a-asset-item>
+            <a-asset-item id="king-model" src="king.glb"></a-asset-item>
+            <a-asset-item id="kapper-model" src="kapper.glb"></a-asset-item>
         </a-assets>
 
         <a-camera position="0 0 0" look-controls="enabled: false"></a-camera>
@@ -35,7 +36,7 @@
             <a-gltf-model 
                 src="#tora-model" 
                 position="0 -0.2 0.1" 
-                scale="2 2 2" 
+                scale="7 7 7" 
                 rotation="90 90 180"
                 animation-mixer>
             </a-gltf-model>
@@ -43,10 +44,20 @@
 
         <a-entity mindar-image-target="targetIndex: 1">
             <a-gltf-model 
-                src="#azuki-model" 
-                position="0 -0.3 0.1" 
-                scale="1 1 1" 
-                rotation="0 0 0"
+                src="#king-model" 
+                position="0 -0.2 0.1" 
+                scale="7 7 7" 
+                rotation="90 90 180"
+                animation-mixer>
+            </a-gltf-model>
+        </a-entity>
+
+        <a-entity mindar-image-target="targetIndex: 2">
+            <a-gltf-model 
+                src="#kapper-model" 
+                position="0 -0.2 0.1" 
+                scale="7 7 7" 
+                rotation="90 90 180"
                 animation-mixer>
             </a-gltf-model>
         </a-entity>
