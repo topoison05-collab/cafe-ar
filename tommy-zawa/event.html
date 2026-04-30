@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>かふぇ絲 AR体験</title>
+    
+    <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.1/dist/mindar-image.prod.js"></script>
+    <script src="https://aframe.io/releases/1.2.0/aframe.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.1/dist/mindar-image-aframe.prod.js"></script>
+    <script src="https://cdn.jsdelivr.net/gh/donmccurdy/aframe-extras@v6.1.1/dist/aframe-extras.min.js"></script>
+
+    <style>
+        body { margin: 0; overflow: hidden; }
+        .mindar-ui-scanning, .mindar-ui-loading { display: none; }
+
+        /* スクリーンショットボタンのスタイル */
+        #ui-container {
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 1000;
+        }
+        #screenshot-btn {
+            padding: 15px 25px;
+            font-size: 16px;
+            background: rgba(255, 255, 255, 0.8);
+            border: 2px solid #333;
+            border-radius: 50px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+
+    <div id="ui-container">
+        <button id="screenshot-btn">写真を撮る</button>
+    </div>
+
+    <a-scene 
+        id="scene"
+        mindar-image="imageTargetSrc: ./tommy.mind; filterMinCF: 0.0001; filterBeta: 0.001;" 
+        color-space="sRGB" 
+        renderer="colorManagement: true, physicallyCorrectLights, preserveDrawingBuffer: true" 
+        vr-mode-ui="enabled: false" 
+        device-orientation-permission-ui="enabled: false">
+        
+        <a-assets>
+            <a-asset-item id="tora-model" src="torakun-sing.glb"></a-asset-item>
+            <a-asset-item id="king-model" src="king-v1.glb"></a-asset-item>
+            <a-asset-item id="kapper-model" src="kepper-v1.glb"></a-asset-item>
+        </a-assets>
+
+        <a-camera position="0 0 0" look-controls="enabled: false"></a-camera>
+
+        <a-entity mindar-image-target="targetIndex: 0">
+            <a-gltf-model src="#tora-model" position="0 -0.1 0.1" scale="4 4 4" rotation="180 90 90" animation-mixer="clip: *; loop: repeat"></a-gltf-model>
+        </a-entity>
+
+        <a-entity mindar-image-target="targetIndex: 1">
+            <a-gltf-model src="#king-model" position="0 -0.1 0.1" scale="2 2 2" rotation="180 90 90" animation-mixer="clip: *; loop: repeat"></a-gltf-model>
+        </a-entity>
+        
+        <a-entity mindar-image-target="targetIndex: 2">
+            <a-gltf-model src="#kapper-model" position="0 -0.1 0.1" scale="2 2 2" rotation="180 90 90" animation-mixer="clip: *; loop: repeat"></a-gltf-model>
+        </a-entity>
+
+    </a-scene>
+
+    <script>
+        const btn = document.querySelector("#screenshot-btn");
+        const sceneEl = document.querySelector("a-scene");
+
+        btn.addEventListener("click", () => {
+            // A-FrameのCanvasを取得
+            const canvas = sceneEl.components.screenshot.getCanvas('perspective');
+            
+            // ファイル名を作成 (日付入り)
+            const date = new Date().toISOString().replace(/:/g, '-');
+            const filename = `cafe-ito-ar-${date}.png`;
+
+            // 保存用のリンクを作成して擬似的にクリック
+            const link = document.createElement("a");
+            link.download = filename;
+            link.href = canvas.toDataURL("image/png");
+            link.click();
+        });
+    </script>
+
+</body>
+</html>
