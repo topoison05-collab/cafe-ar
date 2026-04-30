@@ -13,30 +13,26 @@
     <style>
         body { margin: 0; overflow: hidden; }
         .mindar-ui-scanning, .mindar-ui-loading { display: none; }
-        #ui-container {
-            position: absolute;
-            bottom: 30px;
+
+        /* スクリーンショットボタンの配置 */
+        #screenshot-btn {
+            position: fixed;
+            bottom: 20px;
             left: 50%;
             transform: translateX(-50%);
             z-index: 1000;
-            text-align: center;
-        }
-        #screenshot-btn {
             padding: 12px 24px;
-            font-size: 18px;
-            background: #fff;
-            border: none;
-            border-radius: 30px;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+            background: white;
+            border: 2px solid #333;
+            border-radius: 25px;
+            font-weight: bold;
             cursor: pointer;
         }
     </style>
 </head>
 <body>
 
-    <div id="ui-container">
-        <button id="screenshot-btn">📸 写真を保存</button>
-    </div>
+    <button id="screenshot-btn">スクリーンショット</button>
 
     <a-scene 
         id="scene"
@@ -65,46 +61,17 @@
         <a-entity mindar-image-target="targetIndex: 2">
             <a-gltf-model src="#kapper-model" position="0 -0.1 0.1" scale="2 2 2" rotation="180 90 90" animation-mixer="clip: *; loop: repeat"></a-gltf-model>
         </a-entity>
+
     </a-scene>
 
     <script>
         const btn = document.querySelector("#screenshot-btn");
+        const sceneEl = document.querySelector("a-scene");
 
         btn.addEventListener("click", () => {
-            const sceneEl = document.querySelector("a-scene");
-            const video = document.querySelector("video"); // Mind-ARが生成するビデオ要素
-            const canvas = sceneEl.canvas; // A-Frameの描画キャンバス
-
-            // 合成用のキャンバスを作成
-            const captureCanvas = document.createElement("canvas");
-            captureCanvas.width = canvas.width;
-            captureCanvas.height = canvas.height;
-            const ctx = captureCanvas.getContext("2d");
-
-            // 1. 背面のカメラ映像を書き込む
-            ctx.drawImage(video, 0, 0, captureCanvas.width, captureCanvas.height);
-            
-            // 2. その上に3Dモデルのキャンバスを重ねる
-            ctx.drawImage(canvas, 0, 0, captureCanvas.width, captureCanvas.height);
-
-            // 3. 画像データに変換
-            const dataURL = captureCanvas.toDataURL("image/png");
-
-            // iPhone/iOS対策：ダウンロードリンクが効かないことが多いため、
-            // 新しいタブで画像を開くか、一時的な画像を表示して長押し保存させる
-            const link = document.createElement("a");
-            link.download = "cafe-ito-ar.png";
-            link.href = dataURL;
-            
-            // iOSでは自動ダウンロードがブロックされる場合があるため、
-            // 確実に保存させるには「別画面で開く」手法が有効
-            const newWindow = window.open();
-            if (newWindow) {
-                newWindow.document.write(`<img src="${dataURL}" style="width:100%;"><p>画像を長押しして保存してください</p>`);
-            } else {
-                // 通常のダウンロードを試行
-                link.click();
-            }
+            // A-Frameのスクリーンショット機能を手動で呼び出す
+            // これにより、現在表示されている3D内容がダウンロードされます
+            sceneEl.components.screenshot.capture('perspective');
         });
     </script>
 
