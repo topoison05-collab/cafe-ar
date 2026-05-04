@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>かふぇ絲 AR体験</title>
+    
+    <!-- MindAR & A-Frame Libraries -->
+    <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.1/dist/mindar-image.prod.js"></script>
+    <script src="https://aframe.io/releases/1.2.0/aframe.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.1/dist/mindar-image-aframe.prod.js"></script>
+    <script src="https://cdn.jsdelivr.net/gh/donmccurdy/aframe-extras@v6.1.1/dist/aframe-extras.min.js"></script>
+
+    <style>
+        body { margin: 0; overflow: hidden; }
+        /* ローディングやスキャンUIを非表示にする（必要に応じて） */
+        .mindar-ui-scanning, .mindar-ui-loading { display: none; }
+    </style>
+</head>
+<body>
+
+    <a-scene 
+        mindar-image="imageTargetSrc: ./nurie.mind; filterMinCF: 0.0001; filterBeta: 0.001;" 
+        color-space="sRGB" 
+        renderer="colorManagement: true, physicallyCorrectLights" 
+        vr-mode-ui="enabled: false" 
+        device-orientation-permission-ui="enabled: false">
+        
+        <a-assets>
+            <a-asset-item id="tora-model" src="torakun-sing.glb"></a-asset-item>
+            <a-asset-item id="king-model" src="king-v1.glb"></a-asset-item>
+            <a-asset-item id="kapper-model" src="kepper-v1.glb"></a-asset-item>
+        </a-assets>
+
+        <a-camera position="0 0 0" look-controls="enabled: false"></a-camera>
+
+        <!-- ターゲット 0: 虎 -->
+        <a-entity mindar-image-target="targetIndex: 0" id="target0">
+            <a-gltf-model 
+                id="model0"
+                src="#tora-model" 
+                position="0 -0.1 0.1" 
+                scale="2.5 2.5 2.5" 
+                rotation="180 90 120"
+                animation-mixer="clip: *; loop: repeat; timeScale: 0">
+            </a-gltf-model>
+        </a-entity>
+
+        <!-- ターゲット 1: キング -->
+        <a-entity mindar-image-target="targetIndex: 1" id="target1">
+            <a-gltf-model 
+                id="model1"
+                src="#king-model" 
+                position="0 -0.1 0.1" 
+                scale="1 1 1" 
+                rotation="180 90 120"
+                animation-mixer="clip: *; loop: repeat; timeScale: 0">
+            </a-gltf-model>
+        </a-entity>
+        
+        <!-- ターゲット 2: カッパー -->
+        <a-entity mindar-image-target="targetIndex: 2" id="target2">
+            <a-gltf-model 
+                id="model2"
+                src="#kapper-model" 
+                position="0 -0.1 0.1" 
+                scale="1 1 1" 
+                rotation="180 90 120"
+                animation-mixer="clip: *; loop: repeat; timeScale: 0">
+            </a-gltf-model>
+        </a-entity>
+
+    </a-scene>
+
+    <script>
+        // 全てのターゲット要素を取得
+        const targets = document.querySelectorAll('[mindar-image-target]');
+
+        targets.forEach((target) => {
+            // イラストを認識した時の処理
+            target.addEventListener("targetFound", (event) => {
+                const model = target.querySelector('a-gltf-model');
+                if (model && model.components['animation-mixer']) {
+                    // timeScaleを1にして再生速度を元に戻す
+                    model.setAttribute('animation-mixer', 'timeScale: 1');
+                    // アニメーションを最初(0秒)から再生し直す
+                    model.components['animation-mixer'].stopAction();
+                    model.components['animation-mixer'].playAction();
+                }
+            });
+
+            // イラストを見失った時の処理（任意：最初に戻して停止させる）
+            target.addEventListener("targetLost", (event) => {
+                const model = target.querySelector('a-gltf-model');
+                if (model) {
+                    // 見失った時に停止させる（次に認識した時に最初から始まる準備）
+                    model.setAttribute('animation-mixer', 'timeScale: 0');
+                }
+            });
+        });
+    </script>
+
+</body>
+</html>
