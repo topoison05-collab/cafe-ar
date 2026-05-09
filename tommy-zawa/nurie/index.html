@@ -5,13 +5,37 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>かふぇ絲 AR体験</title>
     
+    <!-- Mind-AR および A-Frame ライブラリ -->
     <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.1/dist/mindar-image.prod.js"></script>
-    
     <script src="https://aframe.io/releases/1.2.0/aframe.min.js"></script>
-    
     <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.1/dist/mindar-image-aframe.prod.js"></script>
-    
     <script src="https://cdn.jsdelivr.net/gh/donmccurdy/aframe-extras@v6.1.1/dist/aframe-extras.min.js"></script>
+
+    <script>
+        // アニメーションを最初から再生するためのカスタムコンポーネント
+        AFRAME.registerComponent('animation-reset', {
+            init: function () {
+                const el = this.el;
+                const model = el.querySelector('a-gltf-model');
+
+                // ターゲットが認識された時のイベント
+                el.addEventListener("targetFound", event => {
+                    console.log("target found");
+                    // animation-mixerの経過時間を0にリセット
+                    if (model) {
+                        model.setAttribute('animation-mixer', {timeScale: 1});
+                        model.components['animation-mixer'].stopAction();
+                        model.components['animation-mixer'].playAction();
+                    }
+                });
+
+                // ターゲットを見失った時にアニメーションを停止させる場合（任意）
+                el.addEventListener("targetLost", event => {
+                    console.log("target lost");
+                });
+            }
+        });
+    </script>
 
     <style>
         body { margin: 0; overflow: hidden; }
@@ -28,6 +52,7 @@
         device-orientation-permission-ui="enabled: false">
         
         <a-assets>
+            <!-- 以前のやり取りに基づいたモデルデータ -->
             <a-asset-item id="tora-model" src="torakun-sing.glb"></a-asset-item>
             <a-asset-item id="king-model" src="king-v1.glb"></a-asset-item>
             <a-asset-item id="kapper-model" src="kappa-dance-v1.glb"></a-asset-item>
@@ -35,7 +60,8 @@
 
         <a-camera position="0 0 0" look-controls="enabled: false"></a-camera>
 
-        <a-entity mindar-image-target="targetIndex: 0">
+        <!-- 各ターゲットに animation-reset コンポーネントを適用 -->
+        <a-entity mindar-image-target="targetIndex: 0" animation-reset>
             <a-gltf-model 
                 src="#tora-model" 
                 position="0 -0.1 0.1" 
@@ -45,7 +71,7 @@
             </a-gltf-model>
         </a-entity>
 
-        <a-entity mindar-image-target="targetIndex: 1">
+        <a-entity mindar-image-target="targetIndex: 1" animation-reset>
             <a-gltf-model 
                 src="#king-model" 
                 position="0 -0.1 0.1" 
@@ -55,7 +81,7 @@
             </a-gltf-model>
         </a-entity>
         
-        <a-entity mindar-image-target="targetIndex: 2">
+        <a-entity mindar-image-target="targetIndex: 2" animation-reset>
             <a-gltf-model 
                 src="#kapper-model" 
                 position="0 -0.1 0.1" 
