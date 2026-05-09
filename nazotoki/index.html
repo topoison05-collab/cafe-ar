@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>かふぇ絲 AR体験</title>
+    <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.1/dist/mindar-image.prod.js"></script>
+    <script src="https://aframe.io/releases/1.2.0/aframe.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.1/dist/mindar-image-aframe.prod.js"></script>
+    <script src="https://cdn.jsdelivr.net/gh/donmccurdy/aframe-extras@v6.1.1/dist/aframe-extras.min.js"></script>
+    
+    <style>
+        body { margin: 0; overflow: hidden; }
+        /* 読み込み中・スキャン中の標準UIを非表示 */
+        .mindar-ui-scanning, .mindar-ui-loading { display: none; }
+    </style>
+</head>
+<body>
+
+    <a-scene 
+        mindar-image="imageTargetSrc: ./nazotoki.mind; filterMinCF: 0.0001; filterBeta: 0.001;" 
+        color-space="sRGB" 
+        renderer="colorManagement: true, physicallyCorrectLights" 
+        vr-mode-ui="enabled: false" 
+        device-orientation-permission-ui="enabled: false">
+        
+        <a-assets>
+            <a-asset-item id="nazo1-model" src="nazotoki.glb"></a-asset-item>
+            <a-asset-item id="nazo2-model" src="nazotoki2.glb"></a-asset-item>
+            <a-asset-item id="nazo3-model" src="nazotoki3.glb"></a-asset-item>
+            <a-asset-item id="nazo4-model" src="nazotoki4.glb"></a-asset-item>
+            <a-asset-item id="nazo5-model" src="nazotoki5.glb"></a-asset-item>
+            <a-asset-item id="nazo6-model" src="nazotoki6.glb"></a-asset-item>
+            <a-asset-item id="nazo7-model" src="nazotoki7.glb"></a-asset-item>
+        </a-assets>
+
+        <a-camera position="0 0 0" look-controls="enabled: false"></a-camera>
+
+        <a-entity mindar-image-target="targetIndex: 0">
+            <a-gltf-model src="#nazo1-model" position="0 -0.2 0.1" scale="3 3 3" rotation="180 90 180" animation-mixer></a-gltf-model>
+        </a-entity>
+
+        <a-entity mindar-image-target="targetIndex: 1">
+            <a-gltf-model src="#nazo2-model" position="0 -0.3 0.1" scale="3 3 3" rotation="180 90 180" animation-mixer></a-gltf-model>
+        </a-entity>
+
+        <a-entity mindar-image-target="targetIndex: 2">
+            <a-gltf-model src="#nazo3-model" position="0 -0.3 0.1" scale="3 3 3" rotation="180 90 180" animation-mixer></a-gltf-model>
+        </a-entity>
+
+        <a-entity mindar-image-target="targetIndex: 3">
+            <a-gltf-model src="#nazo4-model" position="0 -0.3 0.1" scale="3 3 3" rotation="180 90 180" animation-mixer></a-gltf-model>
+        </a-entity>
+
+        <a-entity mindar-image-target="targetIndex: 4">
+            <a-gltf-model src="#nazo5-model" position="0 -0.3 0.1" scale="3 3 3" rotation="180 90 180" animation-mixer></a-gltf-model>
+        </a-entity>
+
+        <a-entity mindar-image-target="targetIndex: 5">
+            <a-gltf-model src="#nazo6-model" position="0 -0.3 0.1" scale="3 3 3" rotation="180 90 180" animation-mixer></a-gltf-model>
+        </a-entity>
+
+        <a-entity mindar-image-target="targetIndex: 6">
+            <a-gltf-model src="#nazo7-model" position="0 -0.3 0.1" scale="3 3 3" rotation="180 90 180" animation-mixer></a-gltf-model>
+        </a-entity>
+
+    </a-scene>
+
+</body>
+</html>

@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>かふぇ絲 AR体験</title>
+    <script type="module" src="https://ajax.googleapis.com/ajax/libs/model-viewer/3.4.0/model-viewer.min.js"></script>
+    <style>
+        body { margin: 0; background-color: #f0f0f0; font-family: sans-serif; }
+        model-viewer { width: 100vw; height: 100vh; --poster-color: transparent; }
+        .ar-button {
+            position: absolute; bottom: 50px; left: 50%; transform: translateX(-50%);
+            padding: 16px 32px; background: #fff; border-radius: 30px;
+            border: none; font-weight: bold; font-size: 18px; box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+        }
+    </style>
+</head>
+<body>
+
+    <model-viewer 
+        src="azuki-v1.glb" 
+        ar 
+        ar-modes="webxr scene-viewer quick-look" 
+        camera-controls 
+        shadow-intensity="1" 
+        auto-rotate>
+        
+        <button slot="ar-button" class="ar-button">
+            あずきを出現させる
+        </button>
+        
+    </model-viewer>
+
+</body>
+</html>

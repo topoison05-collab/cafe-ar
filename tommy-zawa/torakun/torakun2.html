@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>かふぇ絲 AR体験</title>
+    <script type="module" src="https://ajax.googleapis.com/ajax/libs/model-viewer/3.4.0/model-viewer.min.js"></script>
+    <style>
+        body { 
+            margin: 0; 
+            background-color: #f0f0f0; 
+            font-family: "Helvetica Neue", Arial, "Hiragino Kaku Gothic ProN", "Hiragino Sans", Meiryo, sans-serif; 
+            overflow: hidden;
+        }
+        model-viewer { 
+            width: 100vw; 
+            height: 100vh; 
+            --poster-color: transparent;
+        }
+        .ar-button {
+            position: absolute; 
+            bottom: 50px; 
+            left: 50%; 
+            transform: translateX(-50%);
+            padding: 16px 32px; 
+            background: #fff; 
+            border-radius: 30px;
+            border: none; 
+            font-weight: bold; 
+            font-size: 18px; 
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            color: #333;
+            cursor: pointer;
+            z-index: 999;
+        }
+    </style>
+</head>
+<body>
+
+    <model-viewer 
+        src="torakun-ojigi.glb" 
+        ios-src="torakun-ojigi.usdz#allowsContentScaling=1&canonicalWebPageURL=https://ito.cafe"
+        ar 
+        ar-modes="webxr scene-viewer quick-look" 
+        ar-placement="floor"
+        ar-scale="auto"
+        camera-controls 
+        touch-action="none"
+        shadow-intensity="1" 
+        auto-rotate
+        camera-orbit="90deg 75deg 100%"
+        min-camera-orbit="auto auto 5%"
+        alt="かふぇ絲のキャラクター とらくん（お辞儀）の3Dモデル"
+        autoplay
+        animation-name="*"
+        loading="eager"
+        reveal="auto">
+        
+        <button slot="ar-button" class="ar-button">
+            お辞儀をする「とらくん」を出現させる
+        </button>
+        
+    </model-viewer>
+
+</body>
+</html>

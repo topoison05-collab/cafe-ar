@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>かふぇ絲 AR体験</title>
+    <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.1/dist/mindar-image.prod.js"></script>
+    <script src="https://aframe.io/releases/1.2.0/aframe.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.1/dist/mindar-image-aframe.prod.js"></script>
+    <script src="https://cdn.jsdelivr.net/gh/donmccurdy/aframe-extras@v6.1.1/dist/aframe-extras.min.js"></script>
+    
+    <style>
+        body { margin: 0; overflow: hidden; font-family: sans-serif; }
+        .mindar-ui-scanning, .mindar-ui-loading { display: none; }
+
+        /* シャッターボタンのデザイン */
+        #shutter-container {
+            position: fixed;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 1000;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        #shutter-btn {
+            width: 70px;
+            height: 70px;
+            border-radius: 50%;
+            border: 5px solid white;
+            background: rgba(255, 255, 255, 0.3);
+            box-shadow: 0 0 10px rgba(0,0,0,0.3);
+            cursor: pointer;
+            outline: none;
+        }
+
+        #shutter-btn:active {
+            background: rgba(255, 255, 255, 0.7);
+        }
+
+        /* 撮影後のプレビュー画面（iPhone対策） */
+        #preview-container {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.8);
+            z-index: 2000;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+
+        #preview-image {
+            max-width: 80%;
+            max-height: 70%;
+            border: 3px solid white;
+            box-shadow: 0 0 20px rgba(0,0,0,0.5);
+        }
+
+        .preview-text {
+            color: white;
+            margin-top: 20px;
+            font-size: 14px;
+            text-align: center;
+            line-height: 1.6;
+        }
+
+        #close-btn {
+            margin-top: 20px;
+            padding: 10px 20px;
+            background: white;
+            border: none;
+            border-radius: 5px;
+            font-weight: bold;
+        }
+
+        /* 撮影時のフラッシュ演出 */
+        #flash {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: white;
+            z-index: 1500;
+        }
+    </style>
+</head>
+<body>
+
+    <div id="flash"></div>
+
+    <a-scene 
+        mindar-image="imageTargetSrc: ./test.mind; filterMinCF: 0.0001; filterBeta: 0.001;" 
+        color-space="sRGB" 
+        renderer="colorManagement: true, physicallyCorrectLights, preserveDrawingBuffer: true" 
+        vr-mode-ui="enabled: false" 
+        device-orientation-permission-ui="enabled: false"
+        screenshot>
+        
+        <a-assets>
+            <a-asset-item id="tora-model" src="torakun-ojigi.glb"></a-asset-item>
+            <a-asset-item id="azuki-model" src="azuki-v1.glb"></a-asset-item>
+        </a-assets>
+
+        <a-camera position="0 0 0" look-controls="enabled: false"></a-camera>
+
+        <a-entity mindar-image-target="targetIndex: 0">
+            <a-gltf-model 
+                src="#tora-model" 
+                position="0 -0.2 0.1" 
+                scale="1 1 1" 
+                rotation="180 90 180"
+                animation-mixer>
+            </a-gltf-model>
+        </a-entity>
+
+        <a-entity mindar-image-target="targetIndex: 1">
+            <a-gltf-model 
+                src="#azuki-model" 
+                position="0 -0.3 0.1" 
+                scale="1 1 1" 
+                rotation="0 0 0"
+                animation-mixer>
+            </a-gltf-model>
+        </a-entity>
+
+    </a-scene>
+
+    <div id="shutter-container">
+        <button id="shutter-btn"></button>
+        <p style="color: white; text-shadow: 1px 1px 2px black; font-size: 12px; margin-top: 8px;">タップで撮影</p>
+    </div>
+
+    <div id="preview-container">
+        <img id="preview-image" src="" alt="AR Photo">
+        <div class="preview-text">
+            画像を長押しして「写真に追加」または<br>「イメージを保存」を選択してください
+        </div>
+        <button id="close-btn">戻る</button>
+    </div>
+
+    <script>
+        const shutterBtn = document.getElementById('shutter-btn');
+        const flash = document.getElementById('flash');
+        const previewContainer = document.getElementById('preview-container');
+        const previewImage = document.getElementById('preview-image');
+        const closeBtn = document.getElementById('close-btn');
+        const sceneEl = document.querySelector('a-scene');
+
+        shutterBtn.addEventListener('click', () => {
+            // 1. フラッシュ演出
+            flash.style.display = 'block';
+            setTimeout(() => { flash.style.display = 'none'; }, 100);
+
+            // 2. キャプチャ実行
+            // perspectiveモードでカメラ映像と3Dモデルを合成
+            const canvas = sceneEl.components.screenshot.getCanvas('perspective');
+            const dataURL = canvas.toDataURL("image/png");
+
+            // 3. プレビュー表示（Android/iOS両対応のため）
+            previewImage.src = dataURL;
+            previewContainer.style.display = 'flex';
+        });
+
+        // プレビューを閉じる
+        closeBtn.addEventListener('click', () => {
+            previewContainer.style.display = 'none';
+        });
+    </script>
+
+</body>
+</html>
