@@ -1,48 +1,179 @@
-<!-- パスワード入力画面（最初はこれが表示される） -->
-<div id="gatekeeper" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #f0f0f0; z-index: 10000; display: flex; flex-direction: column; align-items: center; justify-content: center;">
-    <h2 style="color: #333; margin-bottom: 20px;">合言葉を入力してください</h2>
-    <input type="text" id="pass-input" style="padding: 12px; font-size: 18px; border-radius: 8px; border: 1px solid #ccc; width: 200px; text-align: center;">
-    <button onclick="checkPass()" style="margin-top: 20px; padding: 12px 40px; background: #333; color: #fff; border: none; border-radius: 25px; font-weight: bold; cursor: pointer;">
-        とらくんに会いに行く
-    </button>
-</div>
+<body>
 
-<!-- AR表示部分（最初は隠しておく） -->
-<div id="ar-content" style="display: none;">
-    <model-viewer 
-        src="tora-basuket-goal.glb" 
-        ios-src="tora-basuket4.usdz#allowsContentScaling=1&canonicalWebPageURL=https://ito.cafe"
-        ar 
-        ar-modes="webxr scene-viewer quick-look" 
-        ar-placement="floor"
-        ar-scale="auto"
-        camera-controls 
-        touch-action="none"
-        shadow-intensity="1" 
-        auto-rotate
-        camera-orbit="90deg 75deg 100%"
-        min-camera-orbit="auto auto 5%"
-        alt="かふぇ絲のキャラクター とらくんの3Dモデル"
-        autoplay
-        animation-name="*"
-        loading="eager"
-        reveal="auto">
-        
-        <button slot="ar-button" class="ar-button">
-            とらくんのフリースローを出現させる
-        </button>
-    </model-viewer>
-</div>
+    <!-- 合言葉入力画面（オーバーレイ） -->
+    <div id="gatekeeper">
+        <div class="glass-card">
+            <h1>かふぇ絲 <small>AR EXPERIENCE</small></h1>
+            <p class="description">
+                ようこそ。とらくんに会うための<br>
+                <strong>「合言葉」</strong>を入力してください。
+            </p>
+            
+            <div class="input-group">
+                <input type="text" id="pass-input" placeholder="合言葉を入力" autofocus>
+                <button onclick="checkPass()">扉を開く</button>
+            </div>
+            <p id="error-msg" style="display: none; color: #d9534f; margin-top: 15px; font-size: 14px;">
+                合言葉が違います。もう一度お確かめください。
+            </p>
+        </div>
+    </div>
 
-<script>
-    function checkPass() {
-        const pass = document.getElementById('pass-input').value;
-        // 合言葉をここで設定（例：ito）
-        if (pass === "ito") {
-            document.getElementById('gatekeeper').style.display = 'none';
-            document.getElementById('ar-content').style.display = 'block';
-        } else {
-            alert("合言葉が違います。もう一度入力してください。");
+    <!-- ARコンテンツ本体 -->
+    <div id="ar-content" style="visibility: hidden; opacity: 0; transition: opacity 1s ease;">
+        <model-viewer 
+            src="tora-basuket-goal.glb" 
+            ios-src="tora-basuket4.usdz#allowsContentScaling=1&canonicalWebPageURL=https://ito.cafe"
+            ar 
+            ar-modes="webxr scene-viewer quick-look" 
+            ar-placement="floor"
+            ar-scale="auto"
+            camera-controls 
+            touch-action="none"
+            shadow-intensity="1" 
+            auto-rotate
+            camera-orbit="90deg 75deg 100%"
+            min-camera-orbit="auto auto 5%"
+            alt="かふぇ絲のキャラクター とらくんの3Dモデル"
+            autoplay
+            animation-name="*"
+            loading="eager"
+            reveal="auto">
+            
+            <button slot="ar-button" class="ar-button">
+                とらくんを出現させる
+            </button>
+        </model-viewer>
+    </div>
+
+    <style>
+        /* 全体のベース */
+        body {
+            background: #e8e8e8;
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
-    }
-</script>
+
+        /* ゲートキーパー（入力画面）の背景 */
+        #gatekeeper {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: url('https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?auto=format&fit=crop&q=80&w=2070') center/cover; /* カフェ風の背景画像 */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 10000;
+        }
+
+        /* グラスモーフィズムカード */
+        .glass-card {
+            background: rgba(255, 255, 255, 0.25);
+            backdrop-filter: blur(15px);
+            -webkit-backdrop-filter: blur(15px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            border-radius: 24px;
+            padding: 40px;
+            text-align: center;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            max-width: 90%;
+            width: 400px;
+        }
+
+        h1 {
+            font-family: "Georgia", serif;
+            color: #3d2b1f;
+            margin-bottom: 10px;
+            letter-spacing: 2px;
+        }
+
+        h1 small {
+            display: block;
+            font-size: 12px;
+            letter-spacing: 4px;
+            margin-top: 5px;
+            opacity: 0.7;
+        }
+
+        .description {
+            color: #555;
+            line-height: 1.6;
+            margin-bottom: 30px;
+            font-size: 15px;
+        }
+
+        /* 入力エリア */
+        .input-group {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        #pass-input {
+            padding: 15px;
+            border: none;
+            border-radius: 12px;
+            background: rgba(255, 255, 255, 0.9);
+            font-size: 16px;
+            text-align: center;
+            outline: none;
+            transition: 0.3s;
+            box-shadow: inset 0 2px 4px rgba(0,0,0,0.05);
+        }
+
+        #pass-input:focus {
+            background: #fff;
+            box-shadow: 0 0 0 3px rgba(61, 43, 31, 0.2);
+        }
+
+        button {
+            padding: 15px;
+            background: #3d2b1f; /* 濃いコーヒー色 */
+            color: #fff;
+            border: none;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        button:hover {
+            background: #5a402e;
+            transform: translateY(-2px);
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+    </style>
+
+    <script>
+        function checkPass() {
+            const pass = document.getElementById('pass-input').value;
+            // 合言葉をここで設定（例：ito）
+            if (pass === "ito") {
+                const gate = document.getElementById('gatekeeper');
+                const content = document.getElementById('ar-content');
+                
+                // フェードアウト演出
+                gate.style.transition = "opacity 0.8s ease";
+                gate.style.opacity = "0";
+                
+                setTimeout(() => {
+                    gate.style.display = 'none';
+                    content.style.visibility = 'visible';
+                    content.style.opacity = '1';
+                }, 800);
+            } else {
+                const error = document.getElementById('error-msg');
+                error.style.display = 'block';
+                // 入力欄を赤く光らせるなどの演出
+                document.getElementById('pass-input').style.border = "1px solid #d9534f";
+            }
+        }
+    </script>
+
+</body>
